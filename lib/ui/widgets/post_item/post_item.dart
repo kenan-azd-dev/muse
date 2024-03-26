@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 // 3rd Party Packages
 import 'package:gap/gap.dart';
+import 'package:muse/core/core.dart';
 import 'package:readmore/readmore.dart';
 
 // Project Files
@@ -112,7 +113,7 @@ class PostItem extends StatelessWidget {
               Text(_numOfLikes.toString()),
               IconButton(
                 icon: const Icon(CupertinoIcons.chat_bubble),
-                onPressed: () {},
+                onPressed: () => Navigator.pushNamed(context, postPage),
               ),
               Text(_numOfComments.toString()),
               const Spacer(),

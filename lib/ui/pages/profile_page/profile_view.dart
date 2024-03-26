@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 // 3rd Party Packages
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:gap/gap.dart';
+import 'package:muse/core/core.dart';
 
 // Project Files
 import '../../widgets/post_item/post_item.dart';
@@ -88,9 +89,10 @@ class _ProfileViewState extends State<ProfileView> {
                                   });
                                 },
                                 child: InkWell(
-                                  onTap: () {
-                                    print('object');
-                                  },
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    postPage,
+                                  ),
                                   child: Ink.image(
                                     fit: BoxFit.cover,
                                     image: const CachedNetworkImageProvider(

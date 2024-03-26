@@ -1,9 +1,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Project Files
 import '../../../../core/core.dart';
+import '../../../blocs/home_page_view_cubit/home_page_view_cubit.dart';
 
 class MainAppBar extends StatelessWidget {
   const MainAppBar({
@@ -22,7 +24,7 @@ class MainAppBar extends StatelessWidget {
           ),
           const Spacer(),
           IconButton(
-            onPressed: () {},
+            onPressed: () => context.read<HomePageViewCubit>().navigateTo(2),
             icon: const Icon(CupertinoIcons.bubble_right_fill),
           )
         ],
