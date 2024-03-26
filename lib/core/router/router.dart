@@ -14,7 +14,18 @@ class Routing {
       case homePage:
         return MaterialPageRoute(builder: (_) => const FeedPage());
       case postPage:
-        return MaterialPageRoute(builder: (_) => const PostPage());
+        return MaterialPageRoute(
+            builder: (_) => const PostPage(
+                  userName: 'user_name',
+                  userProfilePicUrl:
+                      'https://www.shutterstock.com/image-photo/business-woman-drawing-global-structure-260nw-1006041130.jpg',
+                  postImageUrl:
+                      'https://www.shutterstock.com/image-photo/business-woman-drawing-global-structure-260nw-1006041130.jpg',
+                  numOfLikes: 100,
+                  numOfComments: 20,
+                  text:
+                      'This is a loooooooooooooooooooooooooooooooooooooongooooooooooooooooooooooooooooooooooo caption',
+                ));
       case editProfilePage:
         return MaterialPageRoute(builder: (_) => const EditProfilePage());
 
