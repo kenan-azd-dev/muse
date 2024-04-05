@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 // 3rd Party Packages
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:gap/gap.dart';
-import 'package:muse/core/core.dart';
 
 // Project Files
+import '../../../core/router/router.dart';
 import '../../widgets/post_item/post_item.dart';
 import './widgets/profile_card.dart';
 

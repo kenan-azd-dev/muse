@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 
 // 3rd Party Packages
 import 'package:gap/gap.dart';
-import 'package:muse/core/core.dart';
 import 'package:readmore/readmore.dart';
 
 // Project Files
 import 'package:muse/ui/widgets/post_item/likeable_image_with_animation.dart';
+
+import '../../../core/router/router.dart';
 
 class PostItem extends StatelessWidget {
   const PostItem({

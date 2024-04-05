@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Project Files
 import '/di/injection_container.dart';
-import '/core/core.dart';
+import '../../core/common/common.dart';
 
 import './app.dart';
 

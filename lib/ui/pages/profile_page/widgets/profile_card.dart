@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:readmore/readmore.dart';
 
-import '../../../../core/core.dart';
+import '../../../../core/router/router.dart';
 
 class ProfileCard extends StatelessWidget {
   const ProfileCard({
