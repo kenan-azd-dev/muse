@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Project Files
-import '../../blocs/bottom_nav_bar_cubit/bottom_nav_bar_cubit.dart';
-import '../../blocs/home_page_view_cubit/home_page_view_cubit.dart';
+import 'cubits/bottom_nav_bar_cubit/bottom_nav_bar_cubit.dart';
+import 'cubits/home_page_view_cubit/home_page_view_cubit.dart';
+import '../explore_page/explore_page.dart';
 import '../feed_page/feed_page.dart';
 import '../profile_page/profile_page.dart';
 import './widgets/main_bottom_nav_bar.dart';
@@ -30,9 +31,7 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     List<Widget> widgetOptions = <Widget>[
       const FeedPage(),
-      const Text(
-        'Index 1: Business',
-      ),
+      const ExplorePage(),
       const Text(
         'Index 2: School',
       ),
@@ -46,6 +45,12 @@ class _HomeViewState extends State<HomeView> {
         if (state.currentIndex == 2) {
           _pageController.animateToPage(
             2,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        } else if (state.currentIndex == 1) {
+          _pageController.animateToPage(
+            1,
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOut,
           );
@@ -71,7 +76,15 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
             ),
-            const Scaffold(),
+            PopScope(
+              canPop: false,
+              onPopInvoked: (didPop) {
+                if (!didPop) {
+                  context.read<HomePageViewCubit>().navigateTo(1);
+                }
+              },
+              child: const Scaffold(),
+            ),
           ],
         );
       },

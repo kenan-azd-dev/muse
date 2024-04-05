@@ -11,33 +11,29 @@ class FeedView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          children: [
-            ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: 10 + 2,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return const MainAppBar();
-                } else if (index == 1) {
-                  return const StoriesList();
-                } else {
-                  return const PostItem(
-                    userName: 'user_name',
-                    userProfilePicUrl:
-                        'https://www.shutterstock.com/image-photo/business-woman-drawing-global-structure-260nw-1006041130.jpg',
-                    postImageUrl:
-                        'https://www.shutterstock.com/image-photo/business-woman-drawing-global-structure-260nw-1006041130.jpg',
-                    numOfLikes: 100,
-                    numOfComments: 20,
-                    text:
-                        'This is a loooooooooooooooooooooooooooooooooooooongooooooooooooooooooooooooooooooooooo caption',
-                  );
-                }
-              },
-            ),
-          ],
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: 10 + 2,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return const MainAppBar();
+            } else if (index == 1) {
+              return const StoriesList();
+            } else {
+              return const PostItem(
+                userName: 'user_name',
+                userProfilePicUrl:
+                    'https://www.shutterstock.com/image-photo/business-woman-drawing-global-structure-260nw-1006041130.jpg',
+                postImageUrl:
+                    'https://www.shutterstock.com/image-photo/business-woman-drawing-global-structure-260nw-1006041130.jpg',
+                numOfLikes: 100,
+                numOfComments: 20,
+                text:
+                    'This is a loooooooooooooooooooooooooooooooooooooongooooooooooooooooooooooooooooooooooo caption',
+              );
+            }
+          },
         ),
       ),
     );
