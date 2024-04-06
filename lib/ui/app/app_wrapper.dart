@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Project Files
+import '../blocs/app_user_bloc/user_bloc.dart';
 import '/di/injection_container.dart';
 import '../../core/common/common.dart';
 
@@ -17,6 +18,7 @@ class MuseApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ThemeCubit>(create: (context) => locator()),
+        BlocProvider<AppUserBloc>(create: (context) => locator()),
       ],
       child: const Core(),
     );

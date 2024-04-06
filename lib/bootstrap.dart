@@ -15,6 +15,7 @@ void bootstrap() {
   };
 
   Bloc.observer = const AppBlocObserver();
+  
 
   runApp(const MuseApp());
 }
