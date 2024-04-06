@@ -23,8 +23,20 @@ class EditProfileView extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const CircleAvatar(
-                radius: 50,
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      offset: Offset(0, 4),
+                      blurRadius: 8.0,
+                    ),
+                  ],
+                ),
+                child: const CircleAvatar(
+                  radius: 50,
+                ),
               ),
               TextButton(
                 child: const Text('Edit picture'),

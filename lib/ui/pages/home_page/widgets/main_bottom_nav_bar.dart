@@ -77,12 +77,12 @@ class MainBottomNavBar extends StatelessWidget {
                   BottomNavigationBarItem(
                     icon: ElevatedButton(
                       onPressed: () {},
-                      child: const Icon(
-                        Icons.add_rounded,
-                      ),
                       style: ButtonStyle(
                         foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
                         backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surface)
+                      ),
+                      child: const Icon(
+                        Icons.add_rounded,
                       ),
                     ),
                     label: '',

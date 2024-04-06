@@ -253,7 +253,7 @@ class PostView extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(

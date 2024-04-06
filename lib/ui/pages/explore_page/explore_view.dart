@@ -138,7 +138,7 @@ class _ExploreViewState extends State<ExploreView> {
                                             ),
                                           ],
                                         ),
-                                        Gap(8.0),
+                                        const Gap(8.0),
                                         SizedBox(
                                           width: MediaQuery.of(context).size.width - 60,
                                           child: const ReadMoreText(
