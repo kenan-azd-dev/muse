@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // 3rd Party Packages
 import 'package:gap/gap.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:muse/services/sign_up_service.dart';
+import 'package:muse/core/router/arguments/sign_up_arguments.dart';
 
 // Project Files
 import '../../../core/router/router.dart';
