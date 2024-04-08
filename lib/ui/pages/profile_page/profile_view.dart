@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 // 3rd Party Packages
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:muse/ui/blocs/app_user_bloc/user_bloc.dart';
 
 // Project Files
 import '../../../core/router/router.dart';
@@ -26,13 +28,14 @@ class _ProfileViewState extends State<ProfileView> {
       'https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg';
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AppUserBloc>().state.user;
     return Stack(
       children: [
         Scaffold(
           appBar: AppBar(
-            title: const Text(
-              'Kenan AZD',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            title: Text(
+              user.user.displayName,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             actions: [
               IconButton(
@@ -44,7 +47,13 @@ class _ProfileViewState extends State<ProfileView> {
                   showModalBottomSheet(
                     context: context,
                     builder: (context) {
-                      return Container();
+                      return SizedBox(
+                        child: ElevatedButton(
+                            onPressed: () => context
+                                .read<AppUserBloc>()
+                                .add(const UserLogoutRequested()),
+                            child: const Text('logout')),
+                      );
                     },
                   );
                 },

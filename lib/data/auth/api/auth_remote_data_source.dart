@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 // 3rd Party Packages
@@ -8,47 +11,43 @@ import 'package:firebase_auth/firebase_auth.dart' as fire_auth;
 // Project Files
 import '../../../core/exceptions/exceptions.dart';
 import '../../../core/models/models.dart';
+import '../../../core/utils/firebase_utils.dart';
 import './auth_api.dart';
 
-class AuthRemoteDataSource extends AuthApi {
-  AuthRemoteDataSource({
-    CacheClient? cache,
-    fire_auth.FirebaseAuth? auth,
-    FirebaseFirestore? firestore,
-    GoogleSignIn? googleSignIn,
-  })  : _auth = auth ?? fire_auth.FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance,
-        _cache = cache ?? CacheClient(),
-        _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
-
+/// {@template auth_remote_data_source}
+/// An implementation of the AuthApi that uses [FirebaseAuth]
+/// [FirebaseFirestore] as a remote data source.
+/// {@endtemplate}
+@immutable
+class AuthRemoteDataSource implements AuthApi {
   final fire_auth.FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
-  final CacheClient _cache;
   final GoogleSignIn _googleSignIn;
 
-  /// User cache key.
-  /// Should only be used for testing purposes.
-  @visibleForTesting
-  static const userCacheKey = '__user_cache_key__';
+  /// {@macro auth_remote_data_source}
+  const AuthRemoteDataSource({
+    required fire_auth.FirebaseAuth auth,
+    required FirebaseFirestore firestore,
+    required GoogleSignIn googleSignIn,
+  })  : _auth = auth,
+        _firestore = firestore,
+        _googleSignIn = googleSignIn;
+  static const usersCollection = 'users';
 
-  /// Whether or not the current environment is web
-  /// Should only be overridden for testing purposes. Otherwise,
-  /// defaults to [kIsWeb]
-  @visibleForTesting
-  bool isWeb = kIsWeb;
-
-  ///Doc reference to a user
+  /// Doc reference to a user
   DocumentReference _userRef(String uid) {
-    return _firestore.collection('users').doc(uid);
+    return _firestore.collection(usersCollection).doc(uid);
   }
 
-  /// Returns the current cached user.
-  ///
-  /// Defaults to [UserProfile.empty] if there is no cached user.
   @override
-  UserProfile get currentUser {
-    return _cache.read<UserProfile>(key: userCacheKey) ?? UserProfile.empty;
-  }
+  Stream<bool> get isAuthenticated =>
+      _auth.authStateChanges().map((user) => user != null);
+
+  @override
+  Future<UserProfile> get user async =>
+      await _userRef(_auth.currentUser!.uid).get().then((doc) {
+        return UserProfile.fromMap(doc.data() as JsonMap);
+      });
 
   @override
   Future<void> logInWithEmailAndPassword({
@@ -71,7 +70,7 @@ class AuthRemoteDataSource extends AuthApi {
   Future<void> logInWithGoogle() async {
     try {
       late final fire_auth.AuthCredential credential;
-      if (isWeb) {
+      if (kIsWeb) {
         final googleProvider = fire_auth.GoogleAuthProvider();
         final userCredential = await _auth.signInWithPopup(
           googleProvider,
@@ -100,7 +99,7 @@ class AuthRemoteDataSource extends AuthApi {
     required String password,
   }) async {
     final snap = await _firestore
-        .collection('users')
+        .collection(usersCollection)
         .where('username', isEqualTo: username)
         .limit(1)
         .get();
@@ -111,57 +110,98 @@ class AuthRemoteDataSource extends AuthApi {
 
     final UserProfile userData = UserProfile.fromMap(userReference.data());
 
-    final String email = userData.user!.email;
+    final String email = userData.user.email;
 
-    logInWithEmailAndPassword(email: email, password: password);
+    await logInWithEmailAndPassword(email: email, password: password);
   }
-
-  @override
-  Future<void> logout() async => await _auth.signOut();
 
   @override
   Future<void> signUp({
     required String email,
     required String password,
     required UserProfile userProfile,
+    File? profilePicFile,
   }) async {
     try {
-      await _auth.createUserWithEmailAndPassword(
+      final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      try {
-        await _firestore
-            .collection('users')
-            .doc(_auth.currentUser!.uid)
-            .set(userProfile.copyWith(uid: _auth.currentUser!.uid).toMap());
-      } catch (_) {
-        if (_auth.currentUser != null) {
-          await _auth.currentUser!.delete();
-        }
-        rethrow;
-      }
+
+      await setUser(
+        userProfile: userProfile,
+        profilePicFile: profilePicFile,
+        uid: userCredential.user!.uid,
+      );
     } on fire_auth.FirebaseAuthException catch (e) {
       throw AuthException(code: e.code);
-    } catch (_) {
+    } catch (err) {
       throw AuthException();
     }
   }
 
-  /// Stream of [UserProfile] which will emit the current user when
-  /// the authentication state changes.
-  ///
-  /// Emits [UserProfile.empty] if the user is not authenticated.
   @override
-  Stream<UserProfile> get user {
-    return _auth.authStateChanges().asyncMap((firebaseUser) async {
-      final user = firebaseUser == null
-          ? UserProfile.empty
-          : await _userRef(firebaseUser.uid)
-              .get()
-              .then((doc) => UserProfile.fromMap(doc.data() as JsonMap));
-      _cache.write(key: userCacheKey, value: user);
-      return user;
-    });
+  Future<void> setUser({
+    required UserProfile userProfile,
+    File? profilePicFile,
+    String? uid,
+  }) async {
+    try {
+      final imageUrlBundle = await _uploadProfilePicture(profilePicFile);
+
+      // Update user profile with potential image URLs
+      final updatedProfile = userProfile.copyWith(
+        bundle: imageUrlBundle,
+      );
+      String? userId;
+      if (uid != null) {
+        userId = uid;
+      } else {
+        userId = _auth.currentUser!.uid;
+      }
+      await _userRef(userId).set(updatedProfile.toMap());
+    } on fire_auth.FirebaseAuthException catch (e) {
+      throw AuthException(code: e.code);
+    } catch (err) {
+      throw AuthException();
+    }
   }
+
+  @override
+  Future<void> deleteUser() async {
+    try {
+      // Delete user from Firebase Authentication
+      await _auth.currentUser!.delete();
+      // Delete user data from Firestore
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).delete();
+    } on fire_auth.FirebaseAuthException catch (e) {
+      throw AuthException(code: e.code);
+    } catch (err) {
+      throw AuthException();
+    }
+  }
+
+  /// Helper method for profile picture upload logic
+  Future<ImageUrlBundle?> _uploadProfilePicture(File? profilePicFile) async {
+    if (profilePicFile == null) return null;
+
+    final imageBundle = ImageFileBundle(original: profilePicFile);
+    await imageBundle.splitImage();
+
+    final largeUrl = await FirebaseUtils.storeFileToFirebase(
+        'profilePicUrl/${_auth.currentUser!.uid}', imageBundle.large!);
+    final smallUrl = await FirebaseUtils.storeFileToFirebase(
+        'profilePicUrl/${_auth.currentUser!.uid}', imageBundle.small!);
+    final mediumUrl = await FirebaseUtils.storeFileToFirebase(
+        'profilePicUrl/${_auth.currentUser!.uid}', imageBundle.medium!);
+
+    return ImageUrlBundle(
+      large: largeUrl,
+      medium: mediumUrl,
+      small: smallUrl,
+    );
+  }
+
+  @override
+  Future<void> logout() async => await _auth.signOut();
 }

@@ -1,5 +1,7 @@
-import '../image_file_bundle.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 
+import '../image_file_bundle.dart';
 import 'json_map.dart';
 
 /// {@template user}
@@ -7,7 +9,8 @@ import 'json_map.dart';
 /// profile picture, and privacy settings. It's typically used when only basic user
 /// details are needed for display purposes, such as within posts or profiles.
 /// {@endtemplate}
-class User {
+@immutable
+class User extends Equatable {
   /// Unique identifier for the user.
   final String uid;
 
@@ -24,7 +27,7 @@ class User {
   final String email;
 
   /// {@macro user}
-  User({
+  const User({
     required this.uid,
     required this.username,
     required this.displayName,
@@ -46,12 +49,12 @@ class User {
     required JsonMap map,
   }) {
     return User(
-      email: map['is_private'] ?? false,
+      email: map['email'] ?? '',
       uid: map['uid'],
       username: map['username'] ?? '',
       displayName: map['display_name'] ?? '',
       urls: ImageUrlBundle(
-        original: map['photo_url'] ?? '',
+        large: map['photo_url'] ?? '',
         medium: map['photo_url_medium'] ?? '',
         small: map['photo_url_small'] ?? '',
       ),
@@ -65,7 +68,7 @@ class User {
       'uid': uid,
       'username': username,
       'display_name': displayName,
-      'photo_url': urls.original,
+      'photo_url': urls.large,
       'photo_url_medium': urls.medium,
       'photo_url_small': urls.small,
     };
@@ -74,6 +77,7 @@ class User {
   /// Creates a copy of the User object with updated properties.
   /// Only the provided parameters will be updated, while others remain unchanged.
   User copyWith({
+    String? uid,
     String? username,
     String? displayName,
     ImageUrlBundle? urls,
@@ -81,10 +85,21 @@ class User {
   }) {
     return User(
       email: email ?? this.email,
-      uid: uid,
+      uid: uid ?? this.uid,
       username: username ?? this.username,
       displayName: displayName ?? this.displayName,
       urls: urls ?? this.urls,
     );
+  }
+
+  @override
+  List<Object> get props {
+    return [
+      uid,
+      username,
+      displayName,
+      urls,
+      email,
+    ];
   }
 }

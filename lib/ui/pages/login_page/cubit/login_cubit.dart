@@ -1,8 +1,10 @@
 // 3rd Party Packages
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fpdart/fpdart.dart';
 
 // Project Files
+import '../../../../core/failures/failures.dart';
 import '../../../../core/utils/form_validator.dart';
 import '../../../../data/auth/repository/auth_repository.dart';
 
@@ -23,8 +25,7 @@ class LoginCubit extends Cubit<LoginState> {
   void updateEmailOrUsername(String? emailOrUsername) {
     emit(
       state.copyWith(
-        email: emailOrUsername,
-        username: emailOrUsername,
+        input: emailOrUsername,
         isEmailValid: Validator.isEmailValid(emailOrUsername ?? ''),
         isUsernameValid: Validator.isUsernameValid(emailOrUsername ?? ''),
         status: LoginFormStatus.initial,
@@ -42,39 +43,28 @@ class LoginCubit extends Cubit<LoginState> {
     );
   }
 
-  Future<void> logInWithEmailAndPassword() async {
-    if (!state.isEmailValid) return;
+  Future<void> logIn() async {
+    if (!state.isEmailValid && !state.isUsernameValid) return;
     emit(state.copyWith(status: LoginFormStatus.loading));
-    final result = await _authRepository.logInWithEmailAndPassword(
-      email: state.email,
-      password: state.password,
-    );
-    emit(
-      result.fold(
-        (failure) => state.copyWith(
-          errorCode: failure.code,
-          status: LoginFormStatus.failure,
-        ),
-        (_) => state.copyWith(status: LoginFormStatus.success),
-      ),
-    );
+    final result = state.isEmailValid
+        ? await _authRepository.logInWithEmailAndPassword(
+            email: state.inputCredential,
+            password: state.password,
+          )
+        : await _authRepository.logInWithUsernameAndPassword(
+            username: state.inputCredential,
+            password: state.password,
+          );
+    emit(_handleLoginResult(result));
   }
 
-  Future<void> logInWithUsernameAndPassword() async {
-    if (!state.isUsernameValid) return;
-    emit(state.copyWith(status: LoginFormStatus.loading));
-    final result = await _authRepository.logInWithUsernameAndPassword(
-      username: state.username,
-      password: state.password,
-    );
-    emit(
-      result.fold(
-        (failure) => state.copyWith(
-          errorCode: failure.code,
-          status: LoginFormStatus.failure,
-        ),
-        (_) => state.copyWith(status: LoginFormStatus.success),
+  LoginState _handleLoginResult(Either<AuthFailure, void> result) {
+    return result.fold(
+      (failure) => state.copyWith(
+        errorCode: failure.code,
+        status: LoginFormStatus.failure,
       ),
+      (_) => state.copyWith(status: LoginFormStatus.success),
     );
   }
 

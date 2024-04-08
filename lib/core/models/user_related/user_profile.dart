@@ -21,17 +21,17 @@ class UserProfile extends Equatable {
 
   /// Details about the user including username, display name, and profile picture.
   ///
-  /// Should not be empty.
-  final User? user;
+  /// Cannot be empty.
+  final User user;
 
   /// User statistics including post count, follower count, and following count.
   ///
-  /// Should not be empty.
-  final UserStats? stats;
+  /// Cannot be empty.
+  final UserStats stats;
 
   /// Optional bio text for the user profile.
   ///
-  /// Defaults to `false`.
+  /// Defaults to an empty `String`.
   final String? bio;
 
   /// Flag indicating if the user is verified.
@@ -39,7 +39,7 @@ class UserProfile extends Equatable {
   /// Defaults to `false`.
   final bool? isVerified;
 
-  /// Flag indicating if the user is verified.
+  /// Flag indicating if the user profile is private.
   ///
   /// Defaults to `false`.
   final bool? isPrivate;
@@ -47,16 +47,19 @@ class UserProfile extends Equatable {
   /// {@macro user_profile}
   const UserProfile({
     required this.uid,
-    this.user,
-    this.stats,
+    required this.user,
+    required this.stats,
     this.bio = '',
     this.isVerified = false,
     this.isPrivate = false,
-  });  //: //assert(user != null, 'user must not be null'),
-        //assert(stats != null, 'user stats must not be null');
+  });
 
-  /// Empty user which represents an unauthenticated user.
-  static UserProfile empty = const UserProfile(uid: '');
+  /// Empty user which might also represents an unauthenticated user.
+  static UserProfile empty = UserProfile(
+    uid: '',
+    user: User.empty,
+    stats: UserStats.empty,
+  );
 
   /// Convenience getter to determine whether the current user is empty.
   bool get isEmpty => this == UserProfile.empty;
@@ -70,14 +73,14 @@ class UserProfile extends Equatable {
   /// fields in the UserProfile object.
   factory UserProfile.fromMap(JsonMap doc) {
     final user = User(
-      email: doc['email'] ?? '',
+      email: doc['user']['email'] ?? '',
       uid: doc['uid'],
-      username: doc['username'] ?? '',
-      displayName: doc['display_name'] ?? '',
+      username: doc['user']['username'] ?? '',
+      displayName: doc['user']['display_name'] ?? '',
       urls: ImageUrlBundle(
-        original: doc['photo_url'] ?? '',
-        medium: doc['photo_url_medium'] ?? '',
-        small: doc['photo_url_small'] ?? '',
+        large: doc['user']['photo_url'] ?? '',
+        medium: doc['user']['photo_url_medium'] ?? '',
+        small: doc['user']['photo_url_small'] ?? '',
       ),
     );
 
@@ -93,7 +96,7 @@ class UserProfile extends Equatable {
       stats: stats,
       bio: doc['bio'] ?? '',
       isVerified: doc['is_verified'] ?? false,
-      isPrivate: doc['is_private']
+      isPrivate: doc['is_private'],
     );
   }
 
@@ -104,10 +107,10 @@ class UserProfile extends Equatable {
     String? uid,
     String? username,
     String? displayName,
-    String? email, // Not included in original model
+    String? email,
     ImageUrlBundle? bundle,
     String? bio,
-    bool? isPrivate, // Not included in original model, included in user
+    bool? isPrivate,
     bool? isVerified,
     int? postCount,
     int? followerCount,
@@ -115,15 +118,17 @@ class UserProfile extends Equatable {
   }) {
     return UserProfile(
       uid: uid ?? this.uid,
-      user: user!.copyWith(
-        username: username,
-        displayName: displayName,
-        urls: bundle,
-        email: email,
+      user: user.copyWith(
+        uid: uid ?? user.uid,
+        username: username ?? user.username,
+        displayName: displayName ?? user.displayName,
+        urls: bundle ?? user.urls,
+        email: email ?? user.email,
       ),
       isVerified: isVerified ?? this.isVerified,
+      isPrivate: isPrivate ?? this.isPrivate,
       bio: bio ?? this.bio,
-      stats: stats!.copyWith(
+      stats: stats.copyWith(
         postCount: postCount,
         followerCount: followerCount,
         followingCount: followingCount,
@@ -135,15 +140,12 @@ class UserProfile extends Equatable {
   JsonMap toMap() {
     return {
       'uid': uid,
-      'user': user!.toMap(),
-      'photo_url': user!.urls.small, // Uses photo from urls
-      'bio': bio,
+      'user': user.toMap(),
+      'username': user.username,
+      'user_stats': stats.toMap(),
       'is_verified': isVerified,
-      'email': user!.email, // Included from user object
-      'post_count': stats!.postCount,
-      'follower_count': stats!.followerCount,
-      'following_count': stats!.followingCount,
       'is_private': isPrivate,
+      'bio': bio,
     };
   }
 
@@ -154,8 +156,8 @@ class UserProfile extends Equatable {
       user,
       stats,
       bio,
-      isPrivate,
       isVerified,
+      isPrivate,
     ];
   }
 }

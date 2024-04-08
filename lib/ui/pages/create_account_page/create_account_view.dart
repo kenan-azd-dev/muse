@@ -32,7 +32,7 @@ class CreateAccountView extends StatelessWidget with Validator {
         child: BlocConsumer<CreateProfileCubit, CreateProfileState>(
           listener: (context, state) {
             if (state.status == CreateProfileFormStatus.success) {
-              Navigator.pushReplacementNamed(context, homePage);
+              Navigator.pushReplacementNamed(context, profileCompleted);
             } else if (state.status == CreateProfileFormStatus.failure) {}
           },
           builder: (context, state) {
@@ -58,18 +58,20 @@ class CreateAccountView extends StatelessWidget with Validator {
                           ),
                         ],
                       ),
-                      child: CircleAvatar(
-                        radius: 50,
-                        foregroundImage: FileImage(context
-                                    .watch<CreateProfileCubit>()
-                                    .state
-                                    .imageFile !=
-                                null
-                            ? context
-                                .watch<CreateProfileCubit>()
-                                .state
-                                .imageFile!
-                            : File('')),
+                      child: BlocSelector<CreateProfileCubit,
+                          CreateProfileState, File?>(
+                        selector: (state) {
+                          return state.imageFile;
+                        },
+                        builder: (_, state) {
+                          return CircleAvatar(
+                            radius: 50,
+                            foregroundImage: (state != null
+                                ? FileImage(state)
+                                : const AssetImage(
+                                    'assets/images/empty-user.jpg')) as ImageProvider,
+                          );
+                        },
                       ),
                     ),
                     TextButton(

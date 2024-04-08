@@ -18,7 +18,7 @@ final class SignUpState extends Equatable {
     this.isEmailValid = false,
     this.isConfirmPasswordValid = false,
     this.isPasswordValid = false,
-    this.userProfile = const UserProfile(uid: ''),
+    required this.userProfile,
   });
 
   final String email;

@@ -1,7 +1,10 @@
 import 'dart:async';
+
+// 3rd Party Packages
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
+// Project Files
 import '../../../core/models/models.dart';
 import '../../../data/auth/repository/auth_repository.dart';
 
@@ -11,26 +14,40 @@ part 'user_state.dart';
 class AppUserBloc extends Bloc<AppUserEvent, AppUserState> {
   AppUserBloc(AuthRepository authRepository)
       : _authRepository = authRepository,
-        super(
-          authRepository.currentUser.isNotEmpty
-              ? AppUserState.authenticated(authRepository.currentUser)
-              : const AppUserState.unauthenticated(),
-        ) {
-    on<_AppUserChanged>(_onUserChanged);
+        super(AppUserState(user: UserProfile.empty)) {
+    on<_AuthChanged>(_onAuthChanged);
     on<UserLogoutRequested>(_onLogoutRequested);
-    _userSubscription = _authRepository.user.listen(
-      (user) => add(_AppUserChanged(user)),
+    on<UserProfileFetched>(_onGotUser);
+    _userSubscription = _authRepository.isAuthenticated.listen(
+      (isAuth) {
+        if (!isAuth) {
+          add(const _AuthChanged());
+        }
+      },
     );
   }
 
   final AuthRepository _authRepository;
-  late final StreamSubscription<UserProfile> _userSubscription;
+  late final StreamSubscription<bool> _userSubscription;
 
-  void _onUserChanged(_AppUserChanged event, Emitter<AppUserState> emit) {
+  void _onAuthChanged(_AuthChanged event, Emitter<AppUserState> emit) {
+    emit(state.copyWith(
+      status: UserStatus.unauthenticated,
+      user: UserProfile.empty,
+    ));
+  }
+
+  void _onGotUser(UserProfileFetched event, Emitter<AppUserState> emit) async {
+    emit(state.copyWith(status: UserStatus.loading));
+    final result = await _authRepository.user;
     emit(
-      event.user.isNotEmpty
-          ? AppUserState.authenticated(event.user)
-          : const AppUserState.unauthenticated(),
+      result.fold(
+        (failure) => state.copyWith(status: UserStatus.unauthenticated),
+        (userProfile) => state.copyWith(
+          status: UserStatus.authenticated,
+          user: userProfile,
+        ),
+      ),
     );
   }
 

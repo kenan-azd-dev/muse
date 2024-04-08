@@ -18,7 +18,8 @@ class MuseApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ThemeCubit>(create: (context) => locator()),
-        BlocProvider<AppUserBloc>(create: (context) => locator()),
+        BlocProvider<AppUserBloc>(
+            create: (context) => locator()..add(const UserProfileFetched())),
       ],
       child: const Core(),
     );

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 // 3rd Party Packages
 import 'package:fpdart/fpdart.dart';
 
@@ -7,14 +9,18 @@ import '../../../core/failures/failures.dart';
 import '../../../core/models/models.dart';
 import '../api/auth_api.dart';
 
+/// {@template auth_repository}
+/// A repository that handles authentication related requests.
+/// {@endtemplate}
 class AuthRepository {
+  /// {@macro auth_repository}
   const AuthRepository({
     required AuthApi authApi,
   }) : _authApi = authApi;
 
   final AuthApi _authApi;
 
-  UserProfile get currentUser => _authApi.currentUser;
+  Stream<bool> get isAuthenticated => _authApi.isAuthenticated;
 
   Future<Either<AuthFailure, void>> logInWithEmailAndPassword({
     required String email,
@@ -74,12 +80,14 @@ class AuthRepository {
     required String email,
     required String password,
     required UserProfile userProfile,
+    File? profilePicFile,
   }) async {
     try {
       await _authApi.signUp(
         email: email,
         password: password,
         userProfile: userProfile,
+        profilePicFile: profilePicFile,
       );
       return const Right(null);
     } on AuthException catch (e) {
@@ -89,5 +97,23 @@ class AuthRepository {
     }
   }
 
-  Stream<UserProfile> get user => _authApi.user;
+  Future<Either<AuthFailure, UserProfile>> get user async {
+    try {
+      return Right(await _authApi.user);
+    } catch (err) {
+      print(err.toString());
+      return const Left(AuthFailure());
+    }
+  }
+
+  Future<Either<AuthFailure, void>> logout() async {
+    try {
+      await _authApi.logout();
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(code: e.code));
+    } catch (_) {
+      return const Left(AuthFailure());
+    }
+  }
 }

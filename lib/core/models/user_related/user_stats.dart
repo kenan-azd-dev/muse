@@ -1,12 +1,17 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
+
 import 'json_map.dart';
 
 /// {@template user_stats}
 /// Represents statistics for a user on a social media platform or similar system.
 /// Tracks the number of posts, followers, and following users.
 /// {@endtemplate}
-class UserStats {
+@immutable
+class UserStats extends Equatable {
   /// {@macro user_stats}
-  UserStats({
+  const UserStats({
     required this.postCount,
     required this.followerCount,
     required this.followingCount,
@@ -22,9 +27,8 @@ class UserStats {
   final int followingCount;
 
   /// Creates an empty instance of [UserStats] with all counts set to zero.
-  factory UserStats.empty() {
-    return UserStats(postCount: 0, followerCount: 0, followingCount: 0);
-  }
+  static UserStats empty =
+      const UserStats(postCount: 0, followerCount: 0, followingCount: 0);
 
   /// Creates an instance of [UserStats] from a JSON map.
   ///
@@ -32,13 +36,21 @@ class UserStats {
   /// If the map is null, returns an empty [UserStats] object.
   factory UserStats.fromMap(JsonMap? map) {
     if (map == null) {
-      return UserStats.empty();
+      return UserStats.empty;
     }
     return UserStats(
       postCount: map['post_count'] ?? 0,
       followerCount: map['follower_count'] ?? 0,
       followingCount: map['following_count'] ?? 0,
     );
+  }
+
+  JsonMap toMap() {
+    return {
+      'post_count': postCount,
+      'follower_count': followerCount,
+      'following_count': followingCount,
+    };
   }
 
   /// Creates a copy of the current [UserStats] object with optional modifications.
@@ -68,6 +80,17 @@ class UserStats {
   /// Returns a new instance of [UserStats] with the updated follower count.
   /// (Consider adding logic to prevent negative follower count)
   UserStats decrementFollowerCount() {
+    if (followerCount - 1 < 0) {
+      return this;
+    }
     return copyWith(followerCount: followerCount - 1);
   }
+
+  @override
+  String toString() {
+    return 'number of posts: $postCount\nnumber of followers: $followerCount\nnumber of following: $followingCount';
+  }
+
+  @override
+  List<Object> get props => [postCount, followerCount, followingCount];
 }

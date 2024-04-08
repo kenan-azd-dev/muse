@@ -18,7 +18,7 @@ final class CreateProfileState extends Equatable {
     this.imageFile,
     this.isDisplayNameValid = false,
     this.isUsernameValid = false,
-    this.userProfile = const UserProfile(uid: '')
+    required this.userProfile,
   });
 
   final String displayName;

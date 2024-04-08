@@ -9,8 +9,7 @@ enum LoginFormStatus {
 
 final class LoginState extends Equatable {
   const LoginState({
-    this.email = '',
-    this.username = '',
+    this.inputCredential = '',
     this.password = '',
     this.status = LoginFormStatus.initial,
     this.obscureText = true,
@@ -20,8 +19,7 @@ final class LoginState extends Equatable {
     this.isPasswordValid = false,
   });
 
-  final String email;
-  final String username;
+  final String inputCredential;
   final String password;
   final LoginFormStatus status;
   final bool obscureText;
@@ -33,8 +31,7 @@ final class LoginState extends Equatable {
 
   @override
   List<Object?> get props => [
-        email,
-        username,
+        inputCredential,
         password,
         status,
         errorCode,
@@ -45,8 +42,7 @@ final class LoginState extends Equatable {
       ];
 
   LoginState copyWith({
-    String? email,
-    String? username,
+    String? input,
     String? password,
     LoginFormStatus? status,
     bool? obscureText,
@@ -56,8 +52,7 @@ final class LoginState extends Equatable {
     bool? isPasswordValid,
   }) {
     return LoginState(
-      email: email ?? this.email,
-      username: username ?? this.username,
+      inputCredential: input ?? this.inputCredential,
       password: password ?? this.password,
       status: status ?? this.status,
       obscureText: obscureText ?? this.obscureText,

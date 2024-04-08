@@ -15,14 +15,10 @@ class LoginButton extends StatelessWidget {
       width: double.maxFinite,
       height: 64,
       child: OutlinedButton(
-        onPressed: () {
+        onPressed: () async {
           final blocProvider = context.read<LoginCubit>();
-          if (blocProvider.state.isEmailValid &&
-              blocProvider.state.isPasswordValid) {
-            blocProvider.logInWithEmailAndPassword();
-          } else if (blocProvider.state.isUsernameValid &&
-              blocProvider.state.isPasswordValid) {
-            blocProvider.logInWithUsernameAndPassword();
+          if (blocProvider.state.isPasswordValid) {
+            await blocProvider.logIn();
           }
         },
         child: const Text('Login'),

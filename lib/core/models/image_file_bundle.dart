@@ -1,5 +1,12 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
-// for aspectRatio validation
+
+import 'package:equatable/equatable.dart';
+import 'package:image/image.dart' as img;
+import 'package:image_size_getter/image_size_getter.dart';
+import 'package:muse/core/models/models.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 /// Represents an image uploaded to storage with different sizes (original, medium, small).
 /// Used for managing image uploads.
@@ -7,14 +14,20 @@ class ImageFileBundle {
   /// Optional index for the image bundle.
   final int? index;
 
-  /// The original, uncompressed image file. (Required)
   final File original;
 
+  /// The original, uncompressed image file. (Required)
+  File? _large;
+
   /// The medium-sized image file, suitable for most displays. (Required)
-  final File medium;
+  File? _medium;
 
   /// The small-sized image file, suitable for thumbnails or previews. (Required)
-  final File small;
+  File? _small;
+
+  File? get large => _large;
+  File? get medium => _medium;
+  File? get small => _small;
 
   /// The aspect ratio of the image (width / height). Can be null if unknown.
   final double? aspectRatio;
@@ -25,8 +38,6 @@ class ImageFileBundle {
   ImageFileBundle({
     this.index,
     required this.original,
-    required this.medium,
-    required this.small,
     this.aspectRatio,
   }) {
     if (aspectRatio != null) {
@@ -35,15 +46,78 @@ class ImageFileBundle {
       }
     }
   }
+
+  // Use async/await consistently and avoid readAsBytesSync
+  Future<void> splitImage() async {
+    final bytes = await original.readAsBytes();
+    final image = img.decodeImage(bytes);
+
+    if (image == null) {
+      throw Exception('Failed to decode image'); // Handle decoding error
+    }
+
+    final size = Size(image.width, image.height);
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName = DateTime.now().toIso8601String();
+
+    final imagePaths = {
+      'large': path.join(directory.path, '${fileName}_large.jpg'),
+      'medium': path.join(directory.path, '${fileName}_medium.jpg'),
+      'small': path.join(directory.path, '${fileName}_small.jpg'),
+    };
+
+    final resizedImages = await Future.wait(
+      imagePaths.entries.map((entry) => _resizeImage(
+            image: image,
+            maxWidth: _calculateMaxWidth(entry.key),
+            path: entry.value,
+            size: size,
+          )),
+    );
+
+    _large = resizedImages[0];
+    _medium = resizedImages[1];
+    _small = resizedImages[2];
+  }
+
+  Future<File> _resizeImage({
+    required img.Image image,
+    required int maxWidth,
+    required String path,
+    required Size size,
+  }) async {
+    final resizedImage =
+        img.copyResize(image, width: _calculateWidth(size, maxWidth));
+    final imageBytes = img.encodeJpg(resizedImage);
+    return File(path)..writeAsBytes(imageBytes);
+  }
+
+  int _calculateWidth(Size size, int maxWidth) {
+    final originalWidth = size.width.toInt();
+    return originalWidth > maxWidth ? maxWidth : originalWidth;
+  }
+
+  int _calculateMaxWidth(String sizeLabel) {
+    switch (sizeLabel) {
+      case 'large':
+        return 1280;
+      case 'medium':
+        return 720;
+      case 'small':
+        return 240;
+      default:
+        throw ArgumentError('Invalid size label: $sizeLabel');
+    }
+  }
 }
 
 /// Represents an image retrieved from Firestore for display.
-class ImageUrlBundle {
+class ImageUrlBundle extends Equatable {
   /// Optional index for the image bundle.
   final int? index;
 
   /// The URL of the original, uncompressed image. (Required)
-  final String original;
+  final String large;
 
   /// The URL of the medium-sized image. (Required)
   final String medium;
@@ -57,9 +131,9 @@ class ImageUrlBundle {
   /// Creates a new instance of [ImageUrlBundle].
   ///
   /// Uses an assertion to check for a valid aspect ratio (between 0.0 and infinity). Assertions are for development checks and won't trigger in release builds.
-  ImageUrlBundle({
+  const ImageUrlBundle({
     this.index,
-    required this.original,
+    required this.large,
     required this.medium,
     required this.small,
     this.aspectRatio = 1.0,
@@ -67,21 +141,21 @@ class ImageUrlBundle {
             'aspectRatio must be between 0.0 and infinity');
 
   /// Creates an empty instance of [ImageUrlBundle] with all URLs set to empty strings.
-  static ImageUrlBundle empty = ImageUrlBundle(
+  static ImageUrlBundle empty = const ImageUrlBundle(
     small: '',
     medium: '',
-    original: '',
+    large: '',
     aspectRatio: 1.0,
   );
 
   /// Creates an instance of [ImageUrlBundle] from a Firestore user document.
   ///
   /// Extracts image URLs from the document fields 'photo_url', 'photo_url_medium', and 'photo_url_small'.
-  factory ImageUrlBundle.fromUserDoc(Map<String, dynamic> doc) {
+  factory ImageUrlBundle.fromUserDoc(JsonMap doc) {
     return ImageUrlBundle(
       small: doc['photo_url_small'] ?? '',
       medium: doc['photo_url_medium'] ?? '',
-      original: doc['photo_url'] ?? '',
+      large: doc['photo_url'] ?? '',
     );
   }
 
@@ -93,8 +167,35 @@ class ImageUrlBundle {
       index: index,
       small: map['small'] ?? '',
       medium: map['medium'] ?? '',
-      original: map['original'] ?? '',
+      large: map['original'] ?? '',
       aspectRatio: (map['aspect_ratio'] ?? 1.0).toDouble(),
     );
+  }
+
+  ImageUrlBundle copyWith({
+    int? index,
+    String? large,
+    String? medium,
+    String? small,
+    double? aspectRatio,
+  }) {
+    return ImageUrlBundle(
+      index: index ?? this.index,
+      large: large ?? this.large,
+      medium: medium ?? this.medium,
+      small: small ?? this.small,
+      aspectRatio: aspectRatio ?? this.aspectRatio,
+    );
+  }
+
+  @override
+  List<Object?> get props {
+    return [
+      index,
+      large,
+      medium,
+      small,
+      aspectRatio,
+    ];
   }
 }

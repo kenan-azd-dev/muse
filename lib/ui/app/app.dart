@@ -27,8 +27,14 @@ class Core extends StatelessWidget {
         builder: (context, state) {
           if (state.status == UserStatus.authenticated) {
             return const HomePage();
-          } else {
+          } else if (state.status == UserStatus.unauthenticated) {
             return const LoginPage();
+          } else {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
           }
         },
       ),

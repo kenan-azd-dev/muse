@@ -3,7 +3,7 @@ mixin Validator {
       RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(value);
 
   static bool isUsernameValid(String value) => RegExp(
-          r'^([A-Za-z0-9._](?:(?:[A-Za-z0-9._]|(?:\.(?!\.))){3,28}(?:[A-Za-z0-9._]))?)$')
+          r'^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{1,29}$')
       .hasMatch(value);
 
   static bool isDisplayNameValid(String value) =>
@@ -54,9 +54,13 @@ mixin Validator {
   // Name validation
   String? validateUsername(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Username cannot be empty is required';
+      return 'Username is required';
     } else if (value.length < 3) {
-      return 'Your name should at least be 3 characters';
+      return 'Usernames should at least be 2 characters';
+    } else if (value.startsWith('.')) {
+      return 'You can\'t start your username with a period';
+    } else if (value.endsWith('.')) {
+      return 'You can\'t end your username with a period';
     } else if (!isUsernameValid(value)) {
       return 'Please enter a valid username';
     }
@@ -66,7 +70,7 @@ mixin Validator {
   // Name validation
   String? validateDisplayName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Username cannot be empty is required';
+      return 'Display name is required';
     } else if (value.length < 3) {
       return 'Your name should at least be 3 characters';
     }

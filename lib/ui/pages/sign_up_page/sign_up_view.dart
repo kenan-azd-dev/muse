@@ -106,7 +106,7 @@ class SignUpView extends StatelessWidget with Validator {
                             }
                             final args = SignUpArguments(
                               email: context.read<SignUpCubit>().state.email,
-                              password: context.read<SignUpCubit>().state.email,
+                              password: context.read<SignUpCubit>().state.password,
                             );
                             Navigator.pushNamed(
                               context,

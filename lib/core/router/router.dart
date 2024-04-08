@@ -7,6 +7,7 @@ import '../../ui/pages/edit_profile_page/edit_profile_page.dart';
 import '../../ui/pages/home_page/home_page.dart';
 import '../../ui/pages/login_page/login_page.dart';
 import '../../ui/pages/post_page/post_page.dart';
+import '../../ui/pages/profile_completed/profile_completed_page.dart';
 import '../../ui/pages/sign_up_page/sign_up_page.dart';
 import '../common/widgets/error_page.dart';
 
@@ -33,6 +34,8 @@ class Routing {
         } else {
           return MaterialPageRoute(builder: (_) => const ErrorPage());
         }
+      case profileCompleted:
+        return MaterialPageRoute(builder: (_) => const ProfileCompletedPage());
       case postPage:
         return MaterialPageRoute(
             builder: (_) => const PostPage(

@@ -1,16 +1,19 @@
 // 3rd Party Packages
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:muse/core/models/models.dart';
 
 // Project Files
+import '../../../../core/failures/failures.dart';
 import '../../../../core/utils/form_validator.dart';
 import '../../../../data/auth/repository/auth_repository.dart';
 
 part 'sign_up_state.dart';
 
 class SignUpCubit extends Cubit<SignUpState> {
-  SignUpCubit(this._authRepository) : super(const SignUpState());
+  SignUpCubit(this._authRepository)
+      : super(SignUpState(userProfile: UserProfile.empty));
 
   final AuthRepository _authRepository;
 
@@ -56,28 +59,22 @@ class SignUpCubit extends Cubit<SignUpState> {
       password: state.password,
       userProfile: state.userProfile,
     );
-    emit(
-      result.fold(
-        (failure) => state.copyWith(
-          errorCode: failure.code,
-          status: SignUpFormStatus.failure,
-        ),
-        (_) => state.copyWith(status: SignUpFormStatus.success),
-      ),
-    );
+    emit(_handleResult(result));
   }
 
   Future<void> logInWithGoogle() async {
     emit(state.copyWith(status: SignUpFormStatus.loading));
     final result = await _authRepository.logInWithGoogle();
-    emit(
-      result.fold(
-        (failure) => state.copyWith(
-          errorCode: failure.code,
-          status: SignUpFormStatus.failure,
-        ),
-        (_) => state.copyWith(status: SignUpFormStatus.success),
+    emit(_handleResult(result));
+  }
+
+  SignUpState _handleResult(Either<AuthFailure, void> result) {
+    return result.fold(
+      (failure) => state.copyWith(
+        errorCode: failure.code,
+        status: SignUpFormStatus.failure,
       ),
+      (_) => state.copyWith(status: SignUpFormStatus.success),
     );
   }
 }
