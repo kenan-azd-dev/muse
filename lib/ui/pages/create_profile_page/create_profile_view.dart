@@ -9,8 +9,8 @@ import 'package:muse/core/utils/form_validator.dart';
 
 import 'cubit/create_profile_cubit.dart';
 
-class CreateAccountView extends StatelessWidget with Validator {
-  CreateAccountView({
+class CreateProfileView extends StatelessWidget with Validator {
+  CreateProfileView({
     super.key,
     required String email,
     required String password,

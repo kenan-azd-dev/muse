@@ -11,7 +11,7 @@ import '../data/auth/api/auth_api.dart';
 import '../data/auth/api/auth_remote_data_source.dart';
 import '../data/auth/repository/auth_repository.dart';
 import '../ui/blocs/app_user_bloc/user_bloc.dart';
-import '../ui/pages/create_account_page/cubit/create_profile_cubit.dart';
+import '../ui/pages/create_profile_page/cubit/create_profile_cubit.dart';
 import '../ui/pages/login_page/cubit/login_cubit.dart';
 import '../ui/pages/sign_up_page/cubit/sign_up_cubit.dart';
 

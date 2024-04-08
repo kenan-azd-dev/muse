@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:muse/core/router/arguments/sign_up_arguments.dart';
 
 // Project Files
-import '../../ui/pages/create_account_page/create_account_page.dart';
+import '../../ui/pages/create_profile_page/create_profile_page.dart';
 import '../../ui/pages/edit_profile_page/edit_profile_page.dart';
 import '../../ui/pages/home_page/home_page.dart';
 import '../../ui/pages/login_page/login_page.dart';
@@ -26,7 +26,7 @@ class Routing {
         final args = settings.arguments;
         if (args is SignUpArguments) {
           return MaterialPageRoute(
-            builder: (_) => CreateAccountPage(
+            builder: (_) => CreateProfilePage(
               email: args.email,
               password: args.password,
             ),

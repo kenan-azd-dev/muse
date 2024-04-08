@@ -8,8 +8,8 @@ import '../../../di/injection_container.dart';
 import 'create_profile_view.dart';
 import 'cubit/create_profile_cubit.dart';
 
-class CreateAccountPage extends StatelessWidget {
-  const CreateAccountPage({
+class CreateProfilePage extends StatelessWidget {
+  const CreateProfilePage({
     super.key,
     required String email,
     required String password,
@@ -22,7 +22,7 @@ class CreateAccountPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<CreateProfileCubit>(
       create: (context) => locator(),
-      child: CreateAccountView(
+      child: CreateProfileView(
         email: _email,
         password: _password,
       ),
