@@ -22,12 +22,7 @@ void main() async {
 
   if (kDebugMode) {
     try {
-      String localhost = '192.168.1.104';
-      // await FirebaseAppCheck.instance.activate(
-      //   webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
-      //   androidProvider: AndroidProvider.debug,
-      //   appleProvider: AppleProvider.debug,
-      // );
+      String localhost = 'YOUR_IP';
       FirebaseFirestore.instance.useFirestoreEmulator(localhost, 8080);
       await FirebaseAuth.instance.useAuthEmulator(localhost, 9099);
       FirebaseStorage.instance.useStorageEmulator(localhost, 9199);
