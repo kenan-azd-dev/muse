@@ -101,7 +101,6 @@ class AuthRepository {
     try {
       return Right(await _authApi.user);
     } catch (err) {
-      print(err.toString());
       return const Left(AuthFailure());
     }
   }

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Project Files
 import '../../../di/injection_container.dart';
-import './create_account_view.dart';
+import 'create_profile_view.dart';
 import 'cubit/create_profile_cubit.dart';
 
 class CreateAccountPage extends StatelessWidget {
