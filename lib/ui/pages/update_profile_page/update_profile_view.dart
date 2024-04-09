@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // 3rd Party Packages
 import 'package:gap/gap.dart';
 
-import '../../../core/utils/image_utils.dart';
+import '../../../core/utils/utils.dart';
 import '../../blocs/app_user_bloc/user_bloc.dart';
 import '../../widgets/text_fields/text_fields.dart';
 import 'cubit/update_profile_cubit.dart';
