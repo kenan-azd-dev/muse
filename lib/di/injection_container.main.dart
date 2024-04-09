@@ -49,4 +49,7 @@ void _injectAuth({
 
   locator.registerFactory<CreateProfileCubit>(
       () => CreateProfileCubit(locator<AuthRepository>()));
+
+  locator.registerFactory<UpdateProfileCubit>(
+      () => UpdateProfileCubit(locator<AuthRepository>()));
 }
