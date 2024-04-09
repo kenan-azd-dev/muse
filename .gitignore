@@ -43,5 +43,7 @@ app.*.map.json
 /android/app/release
 
 .firebaserc
+firebase.json
+pubspec.lock
 /android/app/google-services.json
 /ios/firebase_app_id_file.json
