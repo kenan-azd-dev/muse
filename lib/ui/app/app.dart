@@ -30,7 +30,7 @@ class Core extends StatelessWidget {
           } else if (state.status == UserStatus.unauthenticated) {
             return const LoginPage();
           } else {
-            return Scaffold(
+            return const Scaffold(
               body: Center(
                 child: CircularProgressIndicator(),
               ),

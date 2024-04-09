@@ -52,7 +52,7 @@ final class LoginState extends Equatable {
     bool? isPasswordValid,
   }) {
     return LoginState(
-      inputCredential: input ?? this.inputCredential,
+      inputCredential: input ?? inputCredential,
       password: password ?? this.password,
       status: status ?? this.status,
       obscureText: obscureText ?? this.obscureText,
