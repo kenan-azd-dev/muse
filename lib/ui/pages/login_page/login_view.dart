@@ -31,10 +31,10 @@ class LoginView extends StatelessWidget {
               ),
             );
         }
-        if (state.status == LoginFormStatus.success) {
-          // Navigator.pushReplacementNamed(context, homePage);
-          context.read<AppUserBloc>().add(const UserProfileFetched());
-        }
+        // if (state.status == LoginFormStatus.success) {
+        //   // Navigator.pushReplacementNamed(context, homePage);
+        //   context.read<AppUserBloc>().add(const UserProfileFetched());
+        // }
       }, builder: (context, state) {
         return Builder(
           builder: (context) {

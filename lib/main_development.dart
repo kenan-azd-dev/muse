@@ -22,7 +22,7 @@ void main() async {
 
   if (kDebugMode) {
     try {
-      String localhost = 'YOUR_IP';
+      String localhost = '192.168.1.104';
       FirebaseFirestore.instance.useFirestoreEmulator(localhost, 8080);
       await FirebaseAuth.instance.useAuthEmulator(localhost, 9099);
       FirebaseStorage.instance.useStorageEmulator(localhost, 9199);
