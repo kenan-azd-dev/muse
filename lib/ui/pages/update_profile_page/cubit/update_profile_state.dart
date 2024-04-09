@@ -2,6 +2,7 @@ part of 'update_profile_cubit.dart';
 
 enum UpdateProfileFormStatus {
   initial,
+  inProgress,
   loading,
   success,
   failure,

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 // 3rd Party Packages
 import 'package:gap/gap.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../core/utils/utils.dart';
 import '../../blocs/app_user_bloc/user_bloc.dart';
@@ -47,10 +48,13 @@ class EditProfileView extends StatelessWidget {
                         context: context,
                         builder: (context) {
                           return PopScope(
+                            key: _alertKey,
                             canPop: false,
                             child: Center(
-                              key: _alertKey,
-                              child: const CircularProgressIndicator(),
+                              child: LoadingAnimationWidget.waveDots(
+                                color: Theme.of(context).colorScheme.onInverseSurface,
+                                size: 50,
+                              ),
                             ),
                           );
                         },
@@ -76,7 +80,10 @@ class EditProfileView extends StatelessWidget {
                         backgroundImage: (state.imageFile == null
                             ? CachedNetworkImageProvider(
                                 authState.user.user.urls.small)
-                            : FileImage(state.imageFile!)) as ImageProvider,
+                            : authState.user.user.urls.small.isEmpty
+                                ? const AssetImage(
+                                    'assets/images/user-empty.png')
+                                : FileImage(state.imageFile!)) as ImageProvider,
                       ),
                     ),
                     TextButton(
@@ -104,6 +111,7 @@ class EditProfileView extends StatelessWidget {
                     ),
                     const Gap(12.0),
                     BioTextField(
+                        initialValue: authState.user.bio,
                         onChanged: (value) => context
                             .read<UpdateProfileCubit>()
                             .updateBio(value)),
@@ -112,7 +120,7 @@ class EditProfileView extends StatelessWidget {
                       height: 64,
                       width: double.maxFinite,
                       child: OutlinedButton(
-                        onPressed: () {
+                        onPressed: state.status == UpdateProfileFormStatus.initial ? null : () {
                           if (!_formKey.currentState!.validate()) {
                             return;
                           }

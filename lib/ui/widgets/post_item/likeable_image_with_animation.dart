@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // 3rd Party Packages
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 // Project Files
 import './like_animation.dart';
@@ -44,14 +44,11 @@ class _LikeableImageWithAnimationState
                 );
               },
               placeholder: (context, url) {
-                return SpinKitFadingCube(
-                  itemBuilder: (BuildContext context, int index) {
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: index.isEven ? Colors.grey[800] : Colors.grey[400],
-                      ),
-                    );
-                  },
+                return Center(
+                  child: LoadingAnimationWidget.waveDots(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 30,
+                  ),
                 );
               },
             ),

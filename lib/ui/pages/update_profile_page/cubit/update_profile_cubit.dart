@@ -17,19 +17,31 @@ class UpdateProfileCubit extends Cubit<UpdateProfileState> {
   final AuthRepository _authRepository;
 
   void updateDisplayName(String displayName) {
-    emit(state.copyWith(displayName: displayName.trim()));
+    emit(state.copyWith(
+      displayName: displayName.trim(),
+      status: UpdateProfileFormStatus.inProgress,
+    ));
   }
 
   void updateUsername(String username) {
-    emit(state.copyWith(username: username.trim().toLowerCase()));
+    emit(state.copyWith(
+      username: username.trim().toLowerCase(),
+      status: UpdateProfileFormStatus.inProgress,
+    ));
   }
 
   void updateBio(String? bio) {
-    emit(state.copyWith(bio: bio));
+    emit(state.copyWith(
+      bio: bio,
+      status: UpdateProfileFormStatus.inProgress,
+    ));
   }
 
   void updateImage(File imageFile) {
-    emit(state.copyWith(imageFile: imageFile));
+    emit(state.copyWith(
+      imageFile: imageFile,
+      status: UpdateProfileFormStatus.inProgress,
+    ));
   }
 
   Future<void> updateProfile(UserProfile currentUserProfile) async {
