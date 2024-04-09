@@ -17,18 +17,23 @@ class AppUserBloc extends Bloc<AppUserEvent, AppUserState> {
         super(AppUserState(user: UserProfile.empty)) {
     on<_AuthChanged>(_onAuthChanged);
     on<UserLogoutRequested>(_onLogoutRequested);
-    on<UserProfileFetched>(_onGotUser);
-    _userSubscription = _authRepository.isAuthenticated.listen(
+    on<_UserProfileFetched>(_onGotUser);
+    _authSubscription = _authRepository.isAuthenticated.listen(
       (isAuth) {
         if (!isAuth) {
           add(const _AuthChanged());
+          _userSubscription?.cancel();
+        } else {
+          _userSubscription = _authRepository.user
+              .listen((user) => add(_UserProfileFetched(user)));
         }
       },
     );
   }
 
   final AuthRepository _authRepository;
-  late final StreamSubscription<bool> _userSubscription;
+  late final StreamSubscription<bool> _authSubscription;
+  StreamSubscription<UserProfile>? _userSubscription;
 
   void _onAuthChanged(_AuthChanged event, Emitter<AppUserState> emit) {
     emit(state.copyWith(
@@ -37,28 +42,28 @@ class AppUserBloc extends Bloc<AppUserEvent, AppUserState> {
     ));
   }
 
-  void _onGotUser(UserProfileFetched event, Emitter<AppUserState> emit) async {
-    emit(state.copyWith(status: UserStatus.loading));
-    final result = await _authRepository.user;
-    emit(
-      result.fold(
-        (failure) => state.copyWith(status: UserStatus.unauthenticated),
-        (userProfile) => state.copyWith(
-          status: UserStatus.authenticated,
-          user: userProfile,
-        ),
-      ),
-    );
+  void _onGotUser(_UserProfileFetched event, Emitter<AppUserState> emit) {
+    emit(state.copyWith(
+      user: event.userProfile,
+      status: event.userProfile.isEmpty
+          ? UserStatus.unauthenticated
+          : UserStatus.authenticated,
+    ));
   }
 
   void _onLogoutRequested(
-      UserLogoutRequested event, Emitter<AppUserState> emit) {
-    unawaited(_authRepository.logOut());
+      UserLogoutRequested event, Emitter<AppUserState> emit) async {
+    final result = await _authRepository.logOut();
+    result.fold(
+      (_) => null,
+      (_) => state.copyWith(status: UserStatus.unauthenticated),
+    );
   }
 
   @override
   Future<void> close() {
-    _userSubscription.cancel();
+    _userSubscription?.cancel();
+    _authSubscription.cancel();
     return super.close();
   }
 }

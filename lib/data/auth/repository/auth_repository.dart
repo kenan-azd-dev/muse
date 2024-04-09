@@ -97,17 +97,51 @@ class AuthRepository {
     }
   }
 
-  Future<Either<AuthFailure, UserProfile>> get user async {
-    try {
-      return Right(await _authApi.user);
-    } catch (err) {
-      return const Left(AuthFailure());
-    }
-  }
+  Stream<UserProfile> get user => _authApi.user;
 
   Future<Either<AuthFailure, void>> logout() async {
     try {
       await _authApi.logout();
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(code: e.code));
+    } catch (_) {
+      return const Left(AuthFailure());
+    }
+  }
+
+  Future<Either<AuthFailure, void>> deleteUser() async {
+    try {
+      await _authApi.deleteUser();
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(code: e.code));
+    } catch (_) {
+      return const Left(AuthFailure());
+    }
+  }
+
+  Future<Either<AuthFailure, void>> setUser({
+    required UserProfile userProfile,
+    File? profilePicFile,
+  }) async {
+    try {
+      await _authApi.setUser(
+        userProfile: userProfile,
+        profilePicFile: profilePicFile,
+      );
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(code: e.code));
+    } catch (_) {
+      return const Left(AuthFailure());
+    }
+  }
+
+  Future<Either<AuthFailure, void>> checkUserNameExistence(
+      String username) async {
+    try {
+      await _authApi.checkUserNameExistence(username);
       return const Right(null);
     } on AuthException catch (e) {
       return Left(AuthFailure(code: e.code));

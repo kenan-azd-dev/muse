@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:muse/core/router/router.dart';
 import 'package:muse/core/utils/form_validator.dart';
 
+import '../../widgets/text_fields/text_fields.dart';
 import 'cubit/create_profile_cubit.dart';
 
 class CreateProfileView extends StatelessWidget with Validator {
@@ -67,9 +68,10 @@ class CreateProfileView extends StatelessWidget with Validator {
                           return CircleAvatar(
                             radius: 50,
                             foregroundImage: (state != null
-                                ? FileImage(state)
-                                : const AssetImage(
-                                    'assets/images/empty-user.jpg')) as ImageProvider,
+                                    ? FileImage(state)
+                                    : const AssetImage(
+                                        'assets/images/empty-user.jpg'))
+                                as ImageProvider,
                           );
                         },
                       ),
@@ -181,73 +183,6 @@ class CreateProfileView extends StatelessWidget with Validator {
           ),
         );
       },
-    );
-  }
-}
-
-class NameTextField extends StatelessWidget with Validator {
-  const NameTextField({
-    super.key,
-    void Function(String)? onChanged,
-  }) : _onChanged = onChanged;
-
-  final void Function(String)? _onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      maxLength: 30,
-      textInputAction: TextInputAction.next,
-      keyboardType: TextInputType.name,
-      decoration: const InputDecoration(
-        label: Text('Name'),
-      ),
-      validator: (value) => validateDisplayName(value),
-      onChanged: _onChanged,
-    );
-  }
-}
-
-class UsernameTextField extends StatelessWidget with Validator {
-  const UsernameTextField({
-    super.key,
-    void Function(String)? onChanged,
-  }) : _onChanged = onChanged;
-
-  final void Function(String)? _onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      textInputAction: TextInputAction.next,
-      maxLength: 30,
-      decoration: const InputDecoration(
-        label: Text('Username'),
-      ),
-      validator: (value) => validateUsername(value),
-      onChanged: _onChanged,
-    );
-  }
-}
-
-class BioTextField extends StatelessWidget with Validator {
-  const BioTextField({
-    super.key,
-    void Function(String)? onChanged,
-  }) : _onChanged = onChanged;
-
-  final void Function(String)? _onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      maxLength: 200,
-      textInputAction: TextInputAction.done,
-      decoration: const InputDecoration(
-        label: Text('Username'),
-      ),
-      maxLines: 3,
-      onChanged: _onChanged,
     );
   }
 }

@@ -12,6 +12,7 @@ final class _AuthChanged extends AppUserEvent {
   const _AuthChanged();
 }
 
-final class UserProfileFetched extends AppUserEvent {
-  const UserProfileFetched();
+final class _UserProfileFetched extends AppUserEvent {
+  final UserProfile userProfile;
+  const _UserProfileFetched(this.userProfile);
 }

@@ -82,10 +82,7 @@ class ProfileCompletedView extends StatelessWidget {
                     height: 64,
                     width: double.maxFinite,
                     child: OutlinedButton(
-                      onPressed: state.status == UserStatus.loading
-                          ? null
-                          : () => BlocProvider.of<AppUserBloc>(context)
-                              .add(const UserProfileFetched()),
+                      onPressed: () => Navigator.pushNamed(context, homePage),
                       child: state.status == UserStatus.loading
                           ? const Center(
                               child: CircularProgressIndicator(),

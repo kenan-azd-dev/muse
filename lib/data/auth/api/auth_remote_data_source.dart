@@ -44,8 +44,11 @@ class AuthRemoteDataSource implements AuthApi {
       _auth.authStateChanges().map((user) => user != null);
 
   @override
-  Future<UserProfile> get user async =>
-      await _userRef(_auth.currentUser!.uid).get().then((doc) {
+  Stream<UserProfile> get user =>
+      _userRef(_auth.currentUser!.uid).snapshots().map((doc) {
+        if (doc.data() == null || _auth.currentUser == null) {
+          return UserProfile.empty;
+        }
         return UserProfile.fromMap(doc.data() as JsonMap);
       });
 
@@ -90,6 +93,18 @@ class AuthRemoteDataSource implements AuthApi {
       throw AuthException(code: e.code);
     } catch (_) {
       throw AuthException();
+    }
+  }
+
+  @override
+  Future<void> checkUserNameExistence(String username) async {
+    final snap = await _firestore
+        .collection(usersCollection)
+        .where('username', isEqualTo: username)
+        .limit(1)
+        .get();
+    if (snap.docs.isEmpty) {
+      throw AuthException(code: 'username-exist');
     }
   }
 

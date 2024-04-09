@@ -18,7 +18,7 @@ abstract class AuthApi {
   /// Returns the current user profile from the database.
   /// 
   /// Throws a [AuthException] on error.
-  Future<UserProfile> get user;
+  Stream<UserProfile> get user;
 
   /// Creates a new user with the provided [email] and [password].
   ///
@@ -66,6 +66,12 @@ abstract class AuthApi {
     required UserProfile userProfile,
     File? profilePicFile,
   });
+
+  /// Checks to see if a user with the same username
+  /// exist in the database.
+  /// 
+  /// Throws [AuthException] if a username exist.
+  Future<void> checkUserNameExistence(String username);
 
   /// Deletes the current user.
   /// 
